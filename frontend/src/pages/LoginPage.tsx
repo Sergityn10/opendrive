@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Navigate, useLocation } from "react-router";
+import { Link, Navigate, useLocation } from "react-router";
+import { Server } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 /**
@@ -152,6 +153,16 @@ export function LoginPage() {
               : "¿Ya tienes cuenta? Inicia sesión"}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/deploy"
+            className="inline-flex items-center gap-1.5 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] transition-colors"
+          >
+            <Server size={14} />
+            <span>Generador de Docker Compose (Servidor & Portátil)</span>
+          </Link>
+        </div>
       </div>
     </main>
   );

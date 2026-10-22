@@ -111,27 +111,57 @@ export function useUploads(parentId: string | null) {
   // Libera la instancia al desmontar.
   useEffect(() => () => uppy.destroy(), [uppy]);
 
+  /** Encola una lista de archivos y lanza la subida. */
+  const uploadFiles = useCallback(
+    (files: File[]) => {
+      if (files.length === 0) return;
+
+      // Limpia de la instancia de Uppy cualquier archivo que ya haya completado
+      // o fallado para permitir subir archivos con el mismo nombre sin errores.
+      const existing = uppy.getFiles();
+      for (const file of existing) {
+        if (file.progress?.uploadComplete || file.error) {
+          try {
+            uppy.removeFile(file.id);
+          } catch {
+            // Ignorar
+          }
+        }
+      }
+
+      try {
+        uppy.addFiles(
+          files.map((file) => ({
+            name: file.name,
+            type: file.type,
+            data: file,
+            // Uppy copia `name` a `filename` y `type` a `filetype` en los
+            // metadatos de tus. La carpeta de destino se añade aquí.
+            meta: { parent_id: parentId ?? "" },
+          })),
+        );
+        setTrayOpen(true);
+        uppy.upload().catch((err) => {
+          console.error("Fallo al iniciar uppy.upload():", err);
+        });
+      } catch (err) {
+        console.warn("Aviso al añadir archivos a Uppy:", err);
+      }
+    },
+    [uppy, parentId, setTrayOpen],
+  );
+
   /** Abre el selector de archivos del sistema y encola las subidas. */
   const pickFiles = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
     input.multiple = true;
     input.onchange = () => {
-      if (!input.files) return;
-      uppy.addFiles(
-        Array.from(input.files).map((file) => ({
-          name: file.name,
-          type: file.type,
-          data: file,
-          // Uppy copia `name` a `filename` y `type` a `filetype` en los
-          // metadatos de tus. La carpeta de destino se añade aquí.
-          meta: { parent_id: parentId ?? "" },
-        })),
-      );
-      void uppy.upload();
+      if (!input.files || input.files.length === 0) return;
+      uploadFiles(Array.from(input.files));
     };
     input.click();
-  }, [uppy, parentId]);
+  }, [uploadFiles]);
 
-  return { uppy, uploads, pickFiles };
+  return { uppy, uploads, pickFiles, uploadFiles };
 }

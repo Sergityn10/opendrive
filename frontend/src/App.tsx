@@ -5,6 +5,7 @@ import { DrivePage } from "@/pages/DrivePage";
 import { TrashPage } from "@/pages/TrashPage";
 import { SearchPage } from "@/pages/SearchPage";
 import { SettingsPage } from "@/pages/SettingsPage";
+import { ComposeGeneratorPage } from "@/pages/ComposeGeneratorPage";
 import { AppShell } from "@/components/AppShell";
 
 /**
@@ -25,6 +26,8 @@ export function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/deploy" element={<ComposeGeneratorPage isPublic={true} />} />
+        <Route path="/compose" element={<ComposeGeneratorPage isPublic={true} />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
@@ -39,6 +42,8 @@ export function App() {
         <Route path="/trash" element={<TrashPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/deploy" element={<ComposeGeneratorPage isPublic={false} />} />
+        <Route path="/compose" element={<ComposeGeneratorPage isPublic={false} />} />
       </Route>
       <Route path="*" element={<Navigate to="/drive" replace />} />
     </Routes>

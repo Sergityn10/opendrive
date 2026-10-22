@@ -14,6 +14,7 @@
 # Permitir únicamente las plantillas públicas de ejemplo
 !.env.example
 !.env.backend.example
+!frontend/.env.example
 
 # Claves privadas, certificados SSL/TLS y almacenes de claves
 *.pem

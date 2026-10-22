@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+import { Server, ExternalLink } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { formatBytes } from "@/lib/format";
 
@@ -73,6 +75,32 @@ export function SettingsPage() {
             <p className="text-[var(--color-ink-muted)]">
               El cliente de escritorio llega en una fase posterior del proyecto.
             </p>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-[var(--color-ink-muted)]">
+            Despliegue y Servidores
+          </h2>
+          <div className="flex items-center justify-between rounded-lg border border-[var(--color-border)] p-4 text-sm">
+            <div>
+              <div className="flex items-center gap-2">
+                <Server size={18} className="text-[var(--color-accent)]" />
+                <p className="font-medium text-[var(--color-ink)]">
+                  Generador de Docker Compose
+                </p>
+              </div>
+              <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+                Configura y descarga archivos <code>compose.yaml</code> y <code>.env</code> para tu portátil o servidor headless.
+              </p>
+            </div>
+            <Link
+              to="/deploy"
+              className="btn btn-primary text-xs"
+            >
+              Abrir Generador
+              <ExternalLink size={12} />
+            </Link>
           </div>
         </section>
       </div>

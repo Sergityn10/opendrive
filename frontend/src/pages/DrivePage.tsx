@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Upload } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { ContextMenu } from "@/components/ContextMenu";
 import { FileBrowser } from "@/components/FileBrowser";
@@ -34,9 +35,46 @@ export function DrivePage() {
     position: { x: number; y: number };
   } | null>(null);
   const [preview, setPreview] = useState<NodeSummary | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounter = useRef(0);
 
   const parentId = folderId ?? null;
-  const { uppy, uploads, pickFiles } = useUploads(parentId);
+  const { uppy, uploads, pickFiles, uploadFiles } = useUploads(parentId);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      dragCounter.current = 0;
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setIsDragging(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      uploadFiles(Array.from(e.dataTransfer.files));
+    }
+  };
 
   const listing = useQuery({
     queryKey: ["nodes", parentId, sort, order, searchText],
@@ -135,7 +173,25 @@ export function DrivePage() {
 
   return (
     <div className="flex min-h-0 flex-1">
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div
+        className="relative flex min-w-0 flex-1 flex-col"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 z-40 m-2 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--color-accent)] bg-blue-50/90 backdrop-blur-xs pointer-events-none transition-all">
+            <Upload size={48} className="text-[var(--color-accent)] animate-bounce" />
+            <p className="mt-3 text-base font-semibold text-[var(--color-ink)]">
+              Suelta los archivos aquí para subirlos a {currentName}
+            </p>
+            <p className="text-xs text-[var(--color-ink-muted)]">
+              Subida resumible tus 1.0
+            </p>
+          </div>
+        )}
+
         <Toolbar
           title={currentName}
           canGoUp={Boolean(parentId)}

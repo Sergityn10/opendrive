@@ -21,9 +21,11 @@ services:
   # ---------------------------------------------------------------------------
   backend:
     image: ${IMAGE_PREFIX:-${DOCKERHUB_USERNAME:-opendrive}}/opendrive-backend:${IMAGE_TAG:-latest}
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    # En el servidor no se compila (se descarga con docker compose pull).
+    # Si quieres compilar en local teniendo el código fuente, descomenta las siguientes 2 líneas:
+    # build:
+    #   context: ./backend
+    #   dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-8080}:8080"

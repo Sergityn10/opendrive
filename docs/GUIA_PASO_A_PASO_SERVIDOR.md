@@ -161,7 +161,25 @@ Error: error interno: error de E/S: Permission denied (os error 13)
 
 **Solución rápida en el servidor:**
 ```bash
-sudo chown -R 1000:1000 ./data
+# Permisos para el backend (UID 1000) en el directorio de almacenamiento
+sudo chown 1000:1000 ./data
+sudo chown -R 1000:1000 ./data/blobs ./data/staging ./data/thumbs 2>/dev/null || true
+
+# Permisos para PostgreSQL (UID 999) en su directorio de base de datos
+sudo chown -R 999:999 ./data/postgres 2>/dev/null || true
+
 docker compose up -d
 ```
-*(Las versiones nuevas de la imagen Docker ya incluyen auto-reparación de permisos al iniciar).*
+*(Nota: Nunca ejecutes `chown -R 1000:1000 ./data` de forma recursiva sobre toda la carpeta `data`, ya que cambiaría los archivos de PostgreSQL de UID 999 a UID 1000, provocando el error `could not open file "global/pg_filenode.map": Permission denied`).*
+
+### Error: `could not open file "global/pg_filenode.map": Permission denied`
+Si ves este error devuelto por la base de datos, significa que los archivos de PostgreSQL en `./data/postgres` perdieron la propiedad del usuario `postgres` (UID 999).
+
+**Solución:**
+```bash
+# Devolver la propiedad de la base de datos al usuario postgres (999)
+sudo chown -R 999:999 ./data/postgres
+docker compose restart postgres
+docker compose restart backend
+```
+*(O si es una instalación limpia sin datos reales, puedes hacer `docker compose down`, `sudo rm -rf ./data/postgres` y `docker compose up -d` para que Postgres se inicialice limpiamente).*

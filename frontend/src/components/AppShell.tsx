@@ -3,6 +3,7 @@ import {
   HardDrive,
   LogOut,
   Search,
+  Server,
   Settings,
   Trash2,
 } from "lucide-react";
@@ -24,6 +25,7 @@ export function AppShell() {
     { to: "/drive", label: "Mi Drive", icon: HardDrive, end: true },
     { to: "/trash", label: "Papelera", icon: Trash2, end: false },
     { to: "/settings", label: "Ajustes", icon: Settings, end: false },
+    { to: "/deploy", label: "Despliegue", icon: Server, end: false },
   ];
 
   return (

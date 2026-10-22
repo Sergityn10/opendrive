@@ -77,11 +77,12 @@ pub fn build_handler(state: &AppState) -> Arc<TusHandler<FileStore, FileLocker>>
     let locker = FileLocker::new(state.blobs.staging_path().join("locks"));
 
     let mut config = TusConfig {
-        // `base_url` es el origen público (esquema + host) y `base_path` la
-        // ruta de montaje. El handler concatena ambos para construir la
-        // cabecera `Location`, así que `base_url` no debe llevar ruta.
+        // `base_path` es la ruta de montaje del endpoint.
+        // Se deja `base_url: None` para que la cabecera `Location` devuelva una ruta
+        // relativa (/api/uploads/<id>). Esto permite que las subidas funcionen a través de
+        // cualquier proxy inverso (Vite, Nginx, Caddy, IP local o dominio) sin problemas de CORS.
         base_path: UPLOAD_BASE_PATH.to_string(),
-        base_url: Some(state.config.public_url.clone()),
+        base_url: None,
         max_size: state.config.max_upload_size,
         trust_forwarded_headers: true,
         enable_download: false,
@@ -118,9 +119,23 @@ fn pre_create_hook(state: AppState) -> PreCreateCallback {
 
             let filename = metadata_value(&info, META_FILENAME)
                 .ok_or_else(|| TusError::InvalidMetadata("falta el nombre del archivo".into()))?;
-            let parent_id = metadata_value(&info, META_PARENT)
-                .and_then(|v| Uuid::parse_str(&v).ok())
-                .ok_or_else(|| TusError::InvalidMetadata("falta la carpeta de destino".into()))?;
+
+            // Si se especifica carpeta padre se usa esa; si viene vacía o nula,
+            // se sube por defecto a la carpeta raíz ("Mi Drive") del usuario.
+            let parent_id = match metadata_value(&info, META_PARENT).and_then(|v| Uuid::parse_str(&v).ok()) {
+                Some(id) => id,
+                None => {
+                    let root = state
+                        .nodes
+                        .get_root(user_id)
+                        .await
+                        .map_err(|e| TusError::HookRejected(e.to_string()))?
+                        .ok_or_else(|| {
+                            TusError::HookRejected("no se encontró la carpeta raíz del usuario".into())
+                        })?;
+                    root.id
+                }
+            };
             let mime = metadata_value(&info, META_MIME);
 
             // La carpeta de destino debe pertenecer al usuario.

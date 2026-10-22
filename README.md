@@ -109,7 +109,9 @@ Si vas a alojar OpenDrive en un ordenador o portátil de tu casa y acceder desde
    ```bash
    docker compose --profile tunnel up -d
    ```
-6. **Despliegue sin clonar el repositorio (Docker Hub):**
+6. **🛠️ Generador Interactivo Web de Docker Compose (Estilo Immich):**
+   Puedes acceder directamente en tu navegador a la ruta `/deploy` (o desde el menú lateral en *Despliegue* / *Ajustes*) para configurar visualmente tu `compose.yaml` y `.env` personalizados con 1 clic (Solo Backend, Completo, HTTPS o Túnel, contraseñas autogeneradas y descarga directa).
+7. **Despliegue sin clonar el repositorio (Docker Hub):**
    Puedes compilar las imágenes en tu PC y subirlas a Docker Hub con `./deploy/push-dockerhub.sh <tu_usuario>`. En tu servidor o portátil solo necesitas `compose.yaml` y ejecutar `docker compose pull && docker compose up -d`. Consulta la [Guía de Despliegue con Docker Hub](docs/DESPLIEGUE_DOCKER_HUB.md).
 7. **Modo Solo Backend (sin Frontend en VPS o Portátil):**
    Si quieres que el servidor funcione exclusivamente como motor de almacenamiento de alta velocidad (WebDAV y API REST):
