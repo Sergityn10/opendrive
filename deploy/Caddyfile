@@ -1,0 +1,63 @@
+# Caddyfile de OpenDrive.
+#
+# Caddy se encarga del TLS automáticamente (Let's Encrypt) y enruta todo el
+# tráfico. La SPA y la API comparten origen, así que no hay problemas de CORS
+# ni de cookies entre dominios.
+
+{
+	email {$ACME_EMAIL:admin@example.com}
+	# En pruebas o entornos sin salida a internet, descomenta la línea siguiente
+	# para usar la CA interna de Caddy en lugar de Let's Encrypt.
+	# acme_ca https://caddy.community-ca-certificate
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Sin límite de tamaño de cuerpo: las subidas grandes pasan por el
+	# endpoint tus, que gestiona su propiostreaming.
+	request_body {
+		max_size 0
+	}
+
+	# Las subidas y las descargas WebDAV pueden tardar mucho: se suben los
+	# timeouts para que el proxy no corte la conexión a mitad.
+	handle /api/uploads/* {
+		reverse_proxy backend:8080 {
+			transport http {
+				read_timeout 12h
+				write_timeout 12h
+			}
+		}
+	}
+
+	handle /dav/* {
+		reverse_proxy backend:8080 {
+			transport http {
+				read_timeout 12h
+				write_timeout 12h
+			}
+		}
+	}
+
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+
+	# El resto es la SPA.
+	handle {
+		reverse_proxy frontend:80
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

@@ -1,0 +1,118 @@
+# ==============================================================================
+# OpenDrive — .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Secretos y Variables de Entorno (NUNCA versionar)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# Permitir únicamente las plantillas públicas de ejemplo
+!.env.example
+!.env.backend.example
+
+# Claves privadas, certificados SSL/TLS y almacenes de claves
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+*.p12
+deploy/certs/*
+!deploy/certs/.gitkeep
+
+# Credenciales de proveedores y DDNS
+deploy/ddns/config.json
+!deploy/ddns/config.json.example
+
+# ------------------------------------------------------------------------------
+# 2. Datos y Almacenamiento Local (Subidas, Blobs, BD)
+# ------------------------------------------------------------------------------
+data/**
+!data/
+!data/.gitkeep
+
+# Ficheros de bases de datos locales
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.wal
+*.rdb
+
+# ------------------------------------------------------------------------------
+# 3. Compilación y Dependencias de Frontend (Node / Vite / React)
+# ------------------------------------------------------------------------------
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+frontend/.vite/
+*.tsbuildinfo
+.eslintcache
+
+# Logs de gestores de paquetes
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------------------------
+# 4. Compilación y Dependencias de Backend (Rust / Cargo)
+# ------------------------------------------------------------------------------
+target/
+backend/target/
+**/*.rs.bk
+*.profraw
+*.profdata
+
+# La caché offline de sqlx (.sqlx/) sí se versiona si se utiliza compilación offline.
+
+# ------------------------------------------------------------------------------
+# 5. Sobrescrituras locales de Docker Compose
+# ------------------------------------------------------------------------------
+docker-compose.override.yml
+docker-compose.override.yaml
+compose.override.yml
+compose.override.yaml
+
+# ------------------------------------------------------------------------------
+# 6. Logs y Archivos Temporales
+# ------------------------------------------------------------------------------
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# ------------------------------------------------------------------------------
+# 7. Editores de Código y Sistemas Operativos
+# ------------------------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sublime-workspace
+*.sublime-project
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+ehthumbs.db
+Thumbs.db
+Desktop.ini

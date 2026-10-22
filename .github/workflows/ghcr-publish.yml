@@ -1,0 +1,80 @@
+name: Publicar en GitHub Container Registry (ghcr.io)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Componente a compilar y subir"
+        required: true
+        default: "backend"
+        type: choice
+        options:
+          - backend
+          - all
+          - frontend
+      tag:
+        description: "Etiqueta de la imagen (ej: latest, 1.0.0)"
+        required: true
+        default: "latest"
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Compilar y publicar en ghcr.io
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Iniciar sesión en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Preparar metadatos (usuario en minúsculas y tag)
+        id: meta
+        run: |
+          # Docker exige nombres de repositorio en minúsculas
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/v}"
+          fi
+          echo "owner=$OWNER" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Compilar y subir Backend
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.target == 'all' || github.event.inputs.target == 'backend' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/opendrive-backend:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ steps.meta.outputs.owner }}/opendrive-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Compilar y subir Frontend
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.target == 'all' || github.event.inputs.target == 'frontend' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/opendrive-frontend:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ steps.meta.outputs.owner }}/opendrive-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

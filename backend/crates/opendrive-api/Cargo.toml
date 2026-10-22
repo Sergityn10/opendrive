@@ -1,0 +1,69 @@
+[package]
+name = "opendrive-api"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Servidor HTTP de OpenDrive"
+
+[[bin]]
+name = "opendrive"
+path = "src/main.rs"
+
+[dependencies]
+opendrive-core.workspace = true
+
+anyhow.workspace = true
+thiserror.workspace = true
+async-trait.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+axum.workspace = true
+axum-extra.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+http.workspace = true
+http-body-util.workspace = true
+bytes.workspace = true
+futures-util.workspace = true
+
+sqlx.workspace = true
+tower-sessions.workspace = true
+tower-cookies.workspace = true
+cookie.workspace = true
+argon2.workspace = true
+rand.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+time.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+utoipa.workspace = true
+utoipa-axum.workspace = true
+utoipa-swagger-ui.workspace = true
+
+clap.workspace = true
+dotenvy.workspace = true
+
+cap-std.workspace = true
+fileloft-core.workspace = true
+fileloft-store-fs.workspace = true
+fileloft-axum.workspace = true
+dav-server.workspace = true
+base64 = "0.22.1"
+camino.workspace = true
+sanitize-filename.workspace = true
+tempfile.workspace = true
+mime_guess.workspace = true
+hex.workspace = true
+sha2.workspace = true
+blake3.workspace = true
+
+[dev-dependencies]
+tower = { workspace = true, features = ["util"] }
+http-body-util.workspace = true

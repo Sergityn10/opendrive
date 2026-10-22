@@ -1,0 +1,80 @@
+# OpenDrive — Backend & Base de datos únicamente (sin Frontend).
+#
+# Ideal para:
+#   - Servidor headless de almacenamiento (WebDAV con rclone, Windows Explorer, etc.).
+#   - Portátiles o servidores con recursos mínimos (solo API Rust + Postgres).
+#   - Frontends que se ejecutan en otra máquina o en desarrollo.
+#
+# Uso:
+#   docker compose -f compose.backend.yaml pull
+#   docker compose -f compose.backend.yaml up -d
+#
+# O si lo usas en una carpeta dedicada en tu portátil:
+#   cp compose.backend.yaml compose.yaml
+#   docker compose pull && docker compose up -d
+
+name: opendrive-backend
+
+services:
+  # ---------------------------------------------------------------------------
+  # Servidor: API REST + endpoint tus resumible + WebDAV RFC 4918.
+  # ---------------------------------------------------------------------------
+  backend:
+    image: ${IMAGE_PREFIX:-${DOCKERHUB_USERNAME:-opendrive}}/opendrive-backend:${IMAGE_TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-opendrive}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-opendrive}
+      OPENDRIVE_BIND: 0.0.0.0:8080
+      OPENDRIVE_DATA_DIR: /data
+      OPENDRIVE_PUBLIC_URL: ${OPENDRIVE_PUBLIC_URL:-http://localhost:${BACKEND_PORT:-8080}}
+      OPENDRIVE_ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@opendrive.local}
+      OPENDRIVE_ADMIN_PASSWORD: ${ADMIN_PASSWORD:?falta ADMIN_PASSWORD en el fichero .env}
+      OPENDRIVE_ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      OPENDRIVE_SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-24}
+      OPENDRIVE_MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-0}
+      OPENDRIVE_TUS_EXPIRY_HOURS: ${TUS_EXPIRY_HOURS:-24}
+      OPENDRIVE_DEFAULT_QUOTA_BYTES: ${DEFAULT_QUOTA_BYTES:-0}
+      OPENDRIVE_ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-false}
+      RUST_LOG: ${RUST_LOG:-info}
+      RUST_BACKTRACE: "1"
+    volumes:
+      # Los datos (blobs, staging tus, miniaturas) se persisten en el host
+      - ./data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [opendrive]
+
+  # ---------------------------------------------------------------------------
+  # Base de datos PostgreSQL con extensión ltree
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:18.6-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-opendrive}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?falta POSTGRES_PASSWORD en el fichero .env}
+      POSTGRES_DB: ${POSTGRES_DB:-opendrive}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-opendrive} -d ${POSTGRES_DB:-opendrive}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks: [opendrive]
+
+networks:
+  opendrive:
+    driver: bridge

@@ -1,0 +1,26 @@
+# Auto-normalizar saltos de línea para archivos de texto
+* text=auto
+
+# Scripts bash/sh y entrypoints SIEMPRE con finales de línea UNIX (LF)
+# Evita el error 'exec: \r: no such file or directory' en Linux / Docker
+*.sh text eol=lf
+entrypoint.sh text eol=lf
+Dockerfile text eol=lf
+Dockerfile* text eol=lf
+
+# Archivos de configuración
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.md text
+
+# Archivos binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary

@@ -1,0 +1,39 @@
+{
+  "settings": [
+    {
+      "_comment": "Ejemplo 1: Cloudflare DNS (Recomendado)",
+      "provider": "cloudflare",
+      "zone_identifier": "TU_ZONE_ID_CLOUDFLARE",
+      "domain": "tudominio.com",
+      "host": "drive",
+      "ttl": 300,
+      "token": "TU_CLOUDFLARE_API_TOKEN",
+      "ip_version": "ipv4"
+    },
+    {
+      "_comment": "Ejemplo 2: DuckDNS",
+      "provider": "duckdns",
+      "domain": "tu-subdominio.duckdns.org",
+      "host": "@",
+      "token": "TU_TOKEN_DUCKDNS",
+      "ip_version": "ipv4"
+    },
+    {
+      "_comment": "Ejemplo 3: Namecheap",
+      "provider": "namecheap",
+      "domain": "tudominio.com",
+      "host": "drive",
+      "password": "TU_DYNAMIC_DNS_PASSWORD_NAMECHEAP",
+      "ip_version": "ipv4"
+    },
+    {
+      "_comment": "Ejemplo 4: Porkbun",
+      "provider": "porkbun",
+      "domain": "tudominio.com",
+      "host": "drive",
+      "api_key": "TU_API_KEY",
+      "secret_api_key": "TU_SECRET_API_KEY",
+      "ip_version": "ipv4"
+    }
+  ]
+}
