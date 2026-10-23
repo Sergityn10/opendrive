@@ -145,9 +145,15 @@ export function useUploads(parentId: string | null) {
             name: file.name,
             type: file.type,
             data: file,
-            // Uppy copia `name` a `filename` y `type` a `filetype` en los
-            // metadatos de tus. La carpeta de destino se añade aquí.
-            meta: { parent_id: parentId ?? "" },
+            // Enviamos explícitamente filename y filetype (además de name y type)
+            // para garantizar compatibilidad total con el hook pre_create de tus.
+            meta: {
+              name: file.name,
+              filename: file.name,
+              type: file.type,
+              filetype: file.type,
+              parent_id: parentId ?? "",
+            },
           })),
         );
         setTrayOpen(true);

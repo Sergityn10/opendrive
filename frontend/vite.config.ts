@@ -27,10 +27,17 @@ export default defineConfig(({ mode }) => {
         "/api": {
           target: backendTarget,
           changeOrigin: true,
+          secure: false,
+          configure: (proxy) => {
+            proxy.on("error", (err) => {
+              console.error("[Vite Proxy Error -> Backend /api]:", err.message);
+            });
+          },
         },
         "/dav": {
           target: backendTarget,
           changeOrigin: true,
+          secure: false,
         },
       },
     },

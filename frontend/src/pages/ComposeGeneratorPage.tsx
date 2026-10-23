@@ -52,7 +52,7 @@ interface ComposeGeneratorPageProps {
 export function ComposeGeneratorPage({ isPublic = false }: ComposeGeneratorPageProps) {
   // Configuración general
   const [mode, setMode] = useState<DeployMode>("backend-only");
-  const [registryType, setRegistryType] = useState<RegistryType>("dockerhub");
+  const [registryType, setRegistryType] = useState<RegistryType>("ghcr");
   const [dockerUser, setDockerUser] = useState("sergityn");
   const [imageTag, setImageTag] = useState("latest");
 
