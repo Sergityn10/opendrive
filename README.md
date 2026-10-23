@@ -143,7 +143,7 @@ Si vas a alojar OpenDrive en un ordenador o portátil de tu casa y acceder desde
      ```
      El backend quedará escuchando en `http://<IP_SERVIDOR>:8080` (API y WebDAV en `/dav`).
 
-Consulta la [Guía Paso a Paso para Servidor (Docker Hub y GHCR)](docs/GUIA_PASO_A_PASO_SERVIDOR.md), la [Guía de Acceso Externo](docs/ACCESO_EXTERNO.md) y la [Guía para Publicar en Repositorio Remoto (GitHub / GitLab)](docs/PUBLICAR_REPOSITORIO.md) para todos los detalles y solución de incidencias (NAT loopback, ahorro de energía, etc.).
+Consulta la [Guía Paso a Paso para Servidor (Docker Hub y GHCR)](docs/GUIA_PASO_A_PASO_SERVIDOR.md), la [Guía de Acceso Externo](docs/ACCESO_EXTERNO.md), la [Guía de Configuración de Proxy Inverso (Nginx, Caddy, NPM)](docs/PROXY_INVERSO.md) y la [Guía para Publicar en Repositorio Remoto (GitHub / GitLab)](docs/PUBLICAR_REPOSITORIO.md) para todos los detalles y solución de incidencias (NAT loopback, ahorro de energía, etc.).
 
 ---
 

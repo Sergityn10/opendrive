@@ -313,8 +313,30 @@ fn map_tus_response(response: TusResponse) -> Response {
 
     let mut builder = Response::builder().status(response.status);
     for (name, value) in response.headers.iter() {
+        if name.as_str().eq_ignore_ascii_case("location") {
+            let loc_str = value.to_str().unwrap_or_default();
+            // Si la cabecera Location viene como URL absoluta (ej: http://localhost:8080/api/uploads/xyz),
+            // la convertimos a ruta relativa (/api/uploads/xyz).
+            // De este modo, el navegador siempre envía los PATCH al mismo host y puerto
+            // desde donde se cargó la aplicación web o proxy.
+            if let Some(pos) = loc_str.find("/api/uploads/") {
+                let relative_loc = &loc_str[pos..];
+                if let Ok(new_val) = axum::http::HeaderValue::from_str(relative_loc) {
+                    builder = builder.header(name, new_val);
+                    continue;
+                }
+            }
+        }
         builder = builder.header(name, value);
     }
+
+    // Cabeceras CORS indispensables para que el cliente tus (Uppy) en el navegador
+    // pueda leer Location y Upload-Offset sin ser bloqueado.
+    builder = builder.header(
+        "Access-Control-Expose-Headers",
+        "Location, Upload-Offset, Upload-Length, Tus-Version, Tus-Resumable, Tus-Max-Size, Tus-Extension",
+    );
+
     builder.body(body).unwrap_or_else(|_| {
         Response::builder()
             .status(StatusCode::INTERNAL_SERVER_ERROR)

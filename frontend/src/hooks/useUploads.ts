@@ -45,6 +45,15 @@ export function useUploads(parentId: string | null) {
       // valida igual que el resto de la API.
       withCredentials: true,
       chunkSize: 8 * 1024 * 1024,
+      retryDelays: [0, 1000, 3000, 5000],
+    });
+
+    instance.on("error", (error) => {
+      console.error("[OpenDrive Uppy Error]:", error);
+    });
+
+    instance.on("upload-error", (file, error, response) => {
+      console.error("[OpenDrive Upload Error]:", file?.name, error, response);
     });
 
     return instance;
@@ -116,11 +125,12 @@ export function useUploads(parentId: string | null) {
     (files: File[]) => {
       if (files.length === 0) return;
 
-      // Limpia de la instancia de Uppy cualquier archivo que ya haya completado
-      // o fallado para permitir subir archivos con el mismo nombre sin errores.
+      // Limpia de la instancia de Uppy cualquier archivo que ya haya completado,
+      // fallado o que tenga el mismo nombre para permitir reintentar sin errores.
       const existing = uppy.getFiles();
+      const newNames = new Set(files.map((f) => f.name));
       for (const file of existing) {
-        if (file.progress?.uploadComplete || file.error) {
+        if (file.progress?.uploadComplete || file.error || newNames.has(file.name)) {
           try {
             uppy.removeFile(file.id);
           } catch {
