@@ -172,7 +172,11 @@ fn build_router(state: AppState, session_layer: SessionManagerLayer<PgSessionSto
     Router::<AppState>::new()
         .merge(api)
         .merge(dav::router())
-        .layer(TraceLayer::new_for_http())
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(tower_http::trace::DefaultMakeSpan::new().level(tracing::Level::INFO))
+                .on_response(tower_http::trace::DefaultOnResponse::new().level(tracing::Level::INFO)),
+        )
         .layer(cors)
         .layer(session_layer)
         // Un pánico en una petición no debe tumbar el servidor: se

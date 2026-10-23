@@ -72,10 +72,10 @@ Ejecuta estos dos comandos para descargar el docker-compose y la plantilla de va
 
 ```bash
 # Descarga el docker-compose exclusivo para el backend
-curl -fsSL https://raw.githubusercontent.com/<tu-usuario>/<tu-repo>/main/compose.backend.yaml -o compose.yaml
+curl -fsSL https://raw.githubusercontent.com/Sergityn10/opendrive/master/compose.backend.yaml -o compose.yaml
 
 # Descarga la plantilla de variables
-curl -fsSL https://raw.githubusercontent.com/<tu-usuario>/<tu-repo>/main/.env.backend.example -o .env
+curl -fsSL https://raw.githubusercontent.com/Sergityn10/opendrive/master/.env.backend.example -o .env
 ```
 *(Si no tienes el repositorio público en GitHub, puedes copiar ambos archivos desde tu PC usando SCP: `scp compose.backend.yaml .env.backend.example usuario@ip_servidor:~/opendrive/` y renombrarlos a `compose.yaml` y `.env`).*
 

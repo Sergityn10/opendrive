@@ -118,6 +118,7 @@ fn pre_create_hook(state: AppState) -> PreCreateCallback {
                 .map_err(|_| TusError::HookRejected("petición no autenticada".into()))?;
 
             let filename = metadata_value(&info, META_FILENAME)
+                .or_else(|| metadata_value(&info, "name"))
                 .ok_or_else(|| TusError::InvalidMetadata("falta el nombre del archivo".into()))?;
 
             // Si se especifica carpeta padre se usa esa; si viene vacía o nula,
@@ -136,7 +137,8 @@ fn pre_create_hook(state: AppState) -> PreCreateCallback {
                     root.id
                 }
             };
-            let mime = metadata_value(&info, META_MIME);
+            let mime = metadata_value(&info, META_MIME)
+                .or_else(|| metadata_value(&info, "type"));
 
             // La carpeta de destino debe pertenecer al usuario.
             let parent = state
@@ -225,6 +227,7 @@ fn metadata_value(info: &UploadInfo, key: &str) -> Option<String> {
 
 /// Crea un upload nuevo (POST).
 async fn create_upload(State(state): State<AppState>, user: AuthUser, req: Request) -> Response {
+    tracing::info!(user_id = %user.id(), "iniciando subida TUS (POST /api/uploads)");
     dispatch(state, user, None, req).await
 }
 
@@ -235,6 +238,12 @@ async fn upload_request(
     Path(id): Path<String>,
     req: Request,
 ) -> Response {
+    tracing::info!(
+        user_id = %user.id(),
+        upload_id = %id,
+        method = %req.method(),
+        "petición TUS recibida"
+    );
     dispatch(state, user, Some(id), req).await
 }
 
